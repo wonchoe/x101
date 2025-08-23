@@ -1,4 +1,4 @@
-bucket_name = "terraform-state-oleksii-140324736561"
+bucket_name   = "terraform-state-oleksii-140324736561"
 dynamoDB_name = "terraform-lock-state"
 allowed_accounts = [
   "arn:aws:iam::140324736561:root",
