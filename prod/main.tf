@@ -13,5 +13,5 @@ provider "aws" {
 
 module "iam" {
   source = "../modules/iam"
-  name   = "dev-role"
+  name   = "prod-role"
 }
