@@ -13,12 +13,18 @@ permissions:
   contents: read
 
 jobs:
-  deploy:
+  bootstrap-dev:
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: ./bootstrap-dev
     steps:
+      - name: Fail if not approved
+        if: github.event.inputs.approve_apply != 'true'
+        run: |
+          echo "Terraform apply was not approved!"
+          exit 1
+          
       - name: Checkout
         uses: actions/checkout@v4
 
