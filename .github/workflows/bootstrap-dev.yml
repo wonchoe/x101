@@ -1,4 +1,4 @@
-name: Deploy
+name: Bootstrap-Dev
 
 on: 
   workflow_dispatch:
