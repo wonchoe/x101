@@ -51,16 +51,20 @@ jobs:
       - name: Terraform Init
         run: terraform init
 
-      - name: Get bucket and dynamo from tfvars
+      - name: Read bucket and dynamo names
         id: tfvars
         run: |
-          echo "bucket=$(terraform output -raw bucket_name)" >> $GITHUB_OUTPUT
-          echo "dynamodb=$(terraform output -raw dynamoDB_name)" >> $GITHUB_OUTPUT
+          bucket=$(grep 'bucket_name' ./bootstrap-dev/terraform.tfvars | awk -F\" '{print $2}')
+          dynamodb=$(grep 'dynamoDB_name' ./bootstrap-dev/terraform.tfvars | awk -F\" '{print $2}')
+          echo "bucket=$bucket" >> $GITHUB_OUTPUT
+          echo "dynamodb=$dynamodb" >> $GITHUB_OUTPUT
+
       
       - name: Terraform Import Existing
         run: |
           terraform import aws_s3_bucket.tf_state "${{ steps.tfvars.outputs.bucket }}" || true
           terraform import aws_dynamodb_table.terraform_locks "${{ steps.tfvars.outputs.dynamodb }}" || true
+
       
 
       - name: Terraform Plan
