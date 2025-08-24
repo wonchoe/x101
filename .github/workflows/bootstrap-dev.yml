@@ -51,6 +51,11 @@ jobs:
       - name: Terraform Init
         run: terraform init
 
+      - name: Import existing backend resources
+        run: |
+          terraform import -no-color aws_s3_bucket.tf_state terraform-state-oleksii-140324736561-dev || true
+          terraform import -no-color aws_dynamodb_table.terraform_locks terraform-lock-state-dev || true
+
       - name: Terraform Plan
         run: terraform plan
 
