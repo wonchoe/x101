@@ -45,3 +45,11 @@ resource "aws_dynamodb_table" "terraform_locks" {
     type = "S"
   }
 }
+
+output "bucket_name" {
+  value = var.bucket_name
+}
+
+output "dynamoDB_name" {
+  value = var.dynamoDB_name
+}
