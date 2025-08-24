@@ -1,0 +1,64 @@
+name: Bootstrap-Prod
+
+on: 
+  workflow_dispatch:
+    inputs:
+      approve_apply:
+        description: "Run terraform apply?"
+        required: true
+        default: "false"
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  bootstrap-Prod:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./bootstrap-prod
+    steps:
+      - name: Fail if not approved
+        if: github.event.inputs.approve_apply != 'true'
+        run: |
+          echo "Terraform apply was not approved!"
+          exit 1
+          
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME_PROD }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Test AWS access
+        run: aws sts get-caller-identity
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.8.5
+
+      - name: Terraform Format Check
+        run: terraform fmt -check -recursive
+
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Import existing backend resources
+        run: |
+          terraform import -no-color aws_s3_bucket.tf_state terraform-state-oleksii-140324736561-prod || true
+          terraform import -no-color aws_dynamodb_table.terraform_locks terraform-lock-state-prod || true
+
+      - name: Terraform Plan
+        run: terraform plan
+
+      - name: Terraform Apply (main/master only)
+        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+        run: terraform apply -auto-approve
