@@ -2,6 +2,11 @@ name: Bootstrap-Dev
 
 on: 
   workflow_dispatch:
+    inputs:
+      approve_apply:
+        description: "Run terraform apply?"
+        required: true
+        default: "false"
 
 permissions:
   id-token: write
